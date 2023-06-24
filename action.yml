@@ -5,10 +5,13 @@ inputs:
     description: 'The path where to find the charts. Usually either "charts/" or "./". Must end with a slash.'
     required: false
     default: './'
+  token:
+    description: 'GitHub Token {{ secrets.GITHUB_TOKEN }} with the privilege set to write packages.'
+    required: true
 runs:
   using: "composite"
   steps:
-  
+
     - name: Package Helm Charts
       shell: bash
       run: |
@@ -26,9 +29,10 @@ runs:
 
     - name: Login to GitHub Container Registry
       shell: bash
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${REGISTRY} --username ${GITHUB_ACTOR} --password-stdin
+      run: echo "${GITHUB_TOKEN}" | helm registry login ${REGISTRY} --username ${GITHUB_ACTOR} --password-stdin
       env:
         REGISTRY: "ghcr.io/${{ github.repository }}"
+        GITHUB_TOKEN: ${{ inputs.token }}
 
     - name: Push Helm Charts to Github Container Registry (OCI)
       shell: bash
