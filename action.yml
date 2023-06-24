@@ -1,0 +1,42 @@
+name: 'Helm Chart Registry (ghcr.io)'
+description: 'Turn your repo with charts into a Helm Chart Registry using GitHub Container Registry (OCI-based)'
+inputs:
+  chartsPath:
+    description: 'The path where to find the charts. Usually either "charts/" or "./". Must end with a slash.'
+    required: false
+    default: './'
+runs:
+  using: "composite"
+  steps:
+  
+    - name: Package Helm Charts
+      shell: bash
+      run: |
+        find ${CHARTS_PATH} -type f -name 'Chart.yaml' | sed -r 's|/[^/]+$||' | sort | uniq | xargs --verbose -L 1 helm dep up
+        for d in ${CHARTS_PATH}*/ ; do
+            if [[ ! -f "${d}Chart.yaml" ]]; then
+                echo "${d}Chart.yaml not found. Skipping."
+                continue
+            fi
+            echo "$d"
+            helm package "$d" -u -d dist
+        done
+      env:
+        CHARTS_PATH: ${{ inputs.chartsPath }}
+
+    - name: Login to GitHub Container Registry
+      shell: bash
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${REGISTRY} --username ${GITHUB_ACTOR} --password-stdin
+      env:
+        REGISTRY: "ghcr.io/${{ github.repository }}"
+
+    - name: Push Helm Charts to Github Container Registry (OCI)
+      shell: bash
+      working-directory: dist
+      run: |
+        for f in *.tgz ; do
+            echo "$f"
+            helm push $f oci://${REGISTRY,,}
+        done
+      env:
+        REGISTRY: "ghcr.io/${{ github.repository }}"
