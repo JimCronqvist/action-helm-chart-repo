@@ -1,5 +1,5 @@
 name: 'Helm Chart Registry (ghcr.io)'
-description: 'Turn your repo with charts into a Helm charts repo on ghcr.io (OCI-based). Alternative to "Helm Chart Releaser", but on ghcr.io instead of GitHub Pages. Works as a private repo.'
+description: 'Turn your repo with charts into a Helm charts repo on GitHub Container Registry, ghcr.io (OCI-based). Works on private repos.'
 branding:
   icon: 'anchor'
   color: 'blue'
