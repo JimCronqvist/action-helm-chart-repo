@@ -1,4 +1,4 @@
-name: 'Helm Chart Registry (ghcr.io)'
+name: 'Helm Chart Repo (ghcr.io)'
 description: 'Turn your repo with charts into a Helm charts repo on GitHub Container Registry, ghcr.io (OCI-based). Works on private repos.'
 branding:
   icon: 'anchor'
